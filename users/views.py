@@ -86,8 +86,6 @@ def password_recovery(request):
             from_email=EMAIL_HOST_USER,
             recipient_list=[email]
         )
-        # пароль шифрует  - как его дальше в шифрованом виде в базу сохранять?
-        # psw = make_password(password, salt=None, hasher='default')
 
         user.set_password(password)
         user.save()
