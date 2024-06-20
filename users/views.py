@@ -1,5 +1,6 @@
 import secrets
 import string
+import random
 
 from django.conf.global_settings import EMAIL_HOST_USER
 from django.core.mail import send_mail
@@ -53,30 +54,24 @@ class ProfileView(UpdateView):
 
 
 def password_recovery(request):
+    context = {
+        'success_message': 'Пароль успешно сброшен. Новый пароль был отправлен на адрес электронной почты.',
+    }
     if request.method == 'POST':
         email = request.POST.get('email')
 
         print(f'Получен адрес {email}')
 
         user = get_object_or_404(User, email=email)
-
+        characters = string.ascii_letters + string.digits
+        characters_list = list(characters)
+        random.shuffle(characters_list)
+        password = ''.join(characters_list[:10])
         print(f'Пользователь {user}')
-
-        password = ''
-
-        # Создание 12-символьного буквенно-цифрового пароля по требованиям безопасности:
-        alphabet = string.ascii_letters + string.digits
-        while True:
-            password = ''.join(secrets.choice(alphabet) for i in range(12))
-            if (any(c.islower() for c in password)
-                    and any(c.isupper() for c in password)
-                    and sum(c.isdigit() for c in password) >= 3):
-                break
 
         print(f'Пароль {password}')
 
-        message = f"Сгенерирован пароль: {password}. \
-                    Если вы не запрашивали восстановление пароля, просто игнорируйте это сообщение."
+        message = f"Сгенерирован пароль: {password}."
 
         print(f'Пароль {message}')
 
@@ -89,6 +84,6 @@ def password_recovery(request):
 
         user.set_password(password)
         user.save()
-        return redirect(reverse('users:login'))
+        return render(request, 'users/reset_password.html', context)
 
     return render(request, 'users/password_recovery.html')
