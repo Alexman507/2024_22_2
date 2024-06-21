@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 
+from users.models import User
+
 NULLABLE = {'null': True, 'blank': True}
 
 
@@ -45,6 +47,7 @@ class Product(models.Model):
                                       help_text="Введите дату создания", )
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата последнего изменения',
                                       help_text="Введите дату изменения", )
+    owner = models.ForeignKey(User, verbose_name='Владелец', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f'{self.name}'
